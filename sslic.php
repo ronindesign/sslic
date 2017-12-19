@@ -47,14 +47,16 @@ Usage:
 
 CLI:
     Command:
-        php sslic.php domain crt-file key-file CABUNDLE-file/chain-file
+        php sslic.php domain crt-file key-file CABUNDLE-file/chain-file target-host
     Environment Variables:
-        USER:  username
-        PASS:  password
-        EMAIL: email address
+        SERVER: target host
+        USER:   username
+        PASS:   password
+        EMAIL:  email address
  
 HTTP REQUEST:
     params:
+        server: target host
         user: username
         pass: password
         dom: domain
@@ -63,9 +65,8 @@ HTTP REQUEST:
         chain: CABUNDLE file
  ';
 
-// Define the API call.
-$cpanel_host = 'localhost';
-$request_uri = "https://$cpanel_host:2083/execute/SSL/install_ssl";
+// Set cpanel host as local for defualt.
+$cpanel_host = 'localhost'; // Override later if `server` parameter
 
 //Get args
 foreach($argv as $arg){
@@ -80,6 +81,8 @@ $isCLI = ( $argc > 0 );
 if($isCLI){
     $tmp = getenv('EMAIL');
     if($tmp != FALSE)   { $GLOBALS['email'] = $tmp;} //optional parameter
+    $server = getenv('SERVER');
+    if($server != FALSE)   { $cpanel_host = $server;} //optional parameter
     
     $username = getenv('USER'); //taken from the environment variable USER.
     $password = getenv('PASS'); //taken from the environment vairable PASS. (It's safer this way)
@@ -90,8 +93,11 @@ if($isCLI){
     if(isset($argv[2])) { $crt      = $argv[2]; } else { err('$crt missing');   }
     if(isset($argv[3])) { $key      = $argv[3]; } else { err('$key missing');   }
     if(isset($argv[4])) { $chain    = $argv[4]; } else { err('$chain missing'); }
+    
+    if(isset($argv[5])) { $cpanel_host    = $argv[5]; } //optional parameter
 } else {
     if(isset($_REQUEST['email']))   { $GLOBALS['email']    = $_REQUEST['email']; } //optional parameter
+    if(isset($_REQUEST['server']))  { $cpanel_host         = $_REQUEST['server']; } //optional parameter
     
     if(isset($_REQUEST['user']))    { $username = $_REQUEST['user']; } else { err('user is missing');  }
     if(isset($_REQUEST['pass']))    { $password = $_REQUEST['pass']; } else { err('pass is missing');  }
@@ -122,6 +128,9 @@ $payload = array(
     'key'       => file_get_contents($key_file),
     'cabundle'  => file_get_contents($chain_file)
 );
+
+// Define the API call.
+$request_uri = "https://$cpanel_host:2083/execute/SSL/install_ssl";
  
 // Set up the CURL request object.
 $ch = curl_init( $request_uri );
