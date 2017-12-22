@@ -1,0 +1,13 @@
+{
+    "name": "ronindesign/sslic",
+    "homepage": "https://github.com/ronindesign/sslic",
+    "description": "SSL certificate installer for Cpanel",
+    "keywords": ["letsencrypt", "cpanel", "ssl", "certificate", "shared hosting", "whm"],
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Ronin Design",
+            "homepage": "https://github.com/ronindesign"
+        }
+    ]
+}
